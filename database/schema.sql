@@ -22,7 +22,8 @@ CREATE TABLE usuario (
     email        VARCHAR(255) NOT NULL,
     rua          VARCHAR(150) NOT NULL,
     numero       VARCHAR(10)  NOT NULL,
-    bairro       VARCHAR(100) NOT NULL
+    bairro       VARCHAR(100) NOT NULL,
+    status_usuario BOOLEAN    NOT NULL DEFAULT TRUE 
 );
 
 CREATE TABLE emprestimo (
