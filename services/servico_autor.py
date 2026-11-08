@@ -43,7 +43,6 @@ class ServicoAutor:
             cur.close()
 
     def atualizar_autor(self, id_autor, nome_autor=None, pais=None):
-        cur = self.conexao.cursor()
         campos = []
         valores = []
 
@@ -55,11 +54,11 @@ class ServicoAutor:
             valores.append(pais)
 
         if not campos:
-            cur.close()
             return
 
         valores.append(id_autor)
         sql = f"UPDATE autor SET {', '.join(campos)} WHERE id_autor = %s"
+        cur = self.conexao.cursor()
         try:
             cur.execute(sql, tuple(valores))
             self.conexao.commit()
