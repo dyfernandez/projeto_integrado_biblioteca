@@ -51,9 +51,14 @@ class ServicoEmprestimo:
                 raise ValueError("Emprestimo não encontrado ou já devolvido..")
             id_livro = linha[0]
 
+            cur.execute(
+                "UPDATE livro SET copias = copias + 1 WHERE id_livro = %s",
+                (id_livro,),
+            )
+
             self.conexao.commit()
-             except Exception as e:
-                self.conexao.rollback()
-                        raise e
-                    finally:
-                        cur.close()
+        except Exception as e:
+            self.conexao.rollback()
+            raise e
+        finally:
+            cur.close()
