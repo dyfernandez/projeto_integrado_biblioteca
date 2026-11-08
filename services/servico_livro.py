@@ -8,6 +8,9 @@ class ServicoLivro:
     def criar_livro(self, nome_livro, ano_publicacao, copias, ids_autores):
         cur = self.conexao.cursor()
         try:
+            if not ids_autores:
+                raise ValueError("O livro precisa ter pelo menos um autor.")
+
             cur.execute(
                 "INSERT INTO livro (nome_livro, ano_publicacao, copias) VALUES (%s, %s, %s) RETURNING id_livro",
                 (nome_livro, ano_publicacao, copias),
