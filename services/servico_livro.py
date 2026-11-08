@@ -70,3 +70,51 @@ class ServicoLivro:
             return [(Livro(*linha[:4]), linha[4]) for linha in linhas]
         finally:
             cur.close()
+
+    def atualizar_livro(
+        self,
+        id_livro,
+        nome_livro=None,
+        ano_publicacao=None,
+        copias=None,
+        ids_autores=None,
+    ):
+        cur = self.conexao.cursor()
+        campos = []
+        valores = []
+
+        if nome_livro is not None:
+            campos.append("nome_livro = %s")
+            valores.append(nome_livro)
+
+        if ano_publicacao is not None:
+            campos.append("ano_publicacao = %s")
+            valores.append(ano_publicacao)
+
+        if copias is not None:
+            campos.append("copias = %s")
+            valores.append(copias)
+
+        try:
+            if ids_autores is not None and not ids_autores:
+                raise ValueError("O livro precisa ter pelo menos um autor.")
+
+            if campos:
+                query = f"UPDATE livro SET {', '.join(campos)} WHERE id_livro = %s"
+                valores.append(id_livro)
+                cur.execute(query, tuple(valores))
+
+            if ids_autores is not None:
+                cur.execute("DELETE FROM livro_autor WHERE id_livro = %s", (id_livro,))
+                for id_autor in ids_autores:
+                    cur.execute(
+                        "INSERT INTO livro_autor (id_livro, id_autor) VALUES (%s, %s)",
+                        (id_livro, id_autor),
+                    )
+
+            self.conexao.commit()
+        except Exception:
+            self.conexao.rollback()
+            raise
+        finally:
+            cur.close()
