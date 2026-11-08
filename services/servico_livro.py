@@ -103,6 +103,10 @@ class ServicoLivro:
             if ids_autores is not None and not ids_autores:
                 raise ValueError("O livro precisa ter pelo menos um autor.")
 
+            cur.execute("SELECT 1 FROM livro WHERE id_livro = %s", (id_livro,))
+            if cur.fetchone() is None:
+                raise ValueError("Livro não encontrado.")
+
             if campos:
                 query = f"UPDATE livro SET {', '.join(campos)} WHERE id_livro = %s"
                 valores.append(id_livro)

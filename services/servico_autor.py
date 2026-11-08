@@ -61,6 +61,8 @@ class ServicoAutor:
         cur = self.conexao.cursor()
         try:
             cur.execute(sql, tuple(valores))
+            if cur.rowcount == 0:
+                raise ValueError("Autor não encontrado.")
             self.conexao.commit()
         except Exception:
             self.conexao.rollback()
