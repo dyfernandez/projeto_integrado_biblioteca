@@ -52,7 +52,6 @@ class ServicoUsuario:
         numero=None,
         bairro=None,
     ):
-        cur = self.conexao.cursor()
         campos = []
         valores = []
 
@@ -81,11 +80,11 @@ class ServicoUsuario:
             valores.append(bairro)
 
         if not campos:
-            cur.close()
             return
 
         valores.append(id_usuario)
 
+        cur = self.conexao.cursor()
         try:
             cur.execute(
                 f"UPDATE usuario SET {', '.join(campos)} "

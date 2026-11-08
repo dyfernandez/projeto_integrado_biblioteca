@@ -79,7 +79,6 @@ class ServicoLivro:
         copias=None,
         ids_autores=None,
     ):
-        cur = self.conexao.cursor()
         campos = []
         valores = []
 
@@ -95,6 +94,7 @@ class ServicoLivro:
             campos.append("copias = %s")
             valores.append(copias)
 
+        cur = self.conexao.cursor()
         try:
             if ids_autores is not None and not ids_autores:
                 raise ValueError("O livro precisa ter pelo menos um autor.")
