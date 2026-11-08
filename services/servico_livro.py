@@ -58,6 +58,48 @@ class ServicoLivro:
         finally:
             cur.close()
 
+    def buscar_livros(self, titulo=None, autor=None, ano=None):
+        condicoes = []
+        valores = []
+
+        if titulo:
+            condicoes.append("l.nome_livro ILIKE %s")
+            valores.append(f"%{titulo}%")
+
+        if autor:
+            # EXISTS em vez de WHERE em a.nome_autor: o filtro não pode cortar
+            # as linhas do JOIN, senão string_agg perde os outros autores.
+            condicoes.append(
+                "EXISTS (SELECT 1 FROM livro_autor la2 "
+                "JOIN autor a2 ON a2.id_autor = la2.id_autor "
+                "WHERE la2.id_livro = l.id_livro AND a2.nome_autor ILIKE %s)"
+            )
+            valores.append(f"%{autor}%")
+
+        if ano is not None and ano != "":
+            condicoes.append("l.ano_publicacao = %s")
+            valores.append(ano)
+
+        filtro = f"WHERE {' AND '.join(condicoes)} " if condicoes else ""
+
+        cur = self.conexao.cursor()
+        try:
+            cur.execute(
+                "SELECT l.id_livro, l.nome_livro, l.ano_publicacao, l.copias, "
+                "COALESCE(string_agg(a.nome_autor, ', '), '') "
+                "FROM livro l "
+                "LEFT JOIN livro_autor la ON la.id_livro = l.id_livro "
+                "LEFT JOIN autor a ON a.id_autor = la.id_autor "
+                f"{filtro}"
+                "GROUP BY l.id_livro "
+                "ORDER BY l.nome_livro",
+                tuple(valores),
+            )
+            linhas = cur.fetchall()
+            return [(Livro(*linha[:4]), linha[4]) for linha in linhas]
+        finally:
+            cur.close()
+
     def listar_livros(self):
         cur = self.conexao.cursor()
         try:
