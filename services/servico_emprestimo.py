@@ -1,6 +1,3 @@
-from models.emprestimo import Emprestimo
-
-
 class ServicoEmprestimo:
     def __init__(self, conexao):
         self.conexao = conexao
