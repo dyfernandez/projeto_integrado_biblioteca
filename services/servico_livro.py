@@ -31,12 +31,13 @@ class ServicoLivro:
     def buscar_livro(self, id_ou_nome):
         cur = self.conexao.cursor()
         try:
-            if isinstance(id_ou_nome, int):
-                filtro = "WHERE l.id_livro = %s"
-                valor = id_ou_nome
+            texto = str(id_ou_nome)
+            if texto.isdigit():
+                filtro = "WHERE l.id_livro = %s OR l.nome_livro ILIKE %s"
+                valores = (int(texto), f"%{texto}%")
             else:
                 filtro = "WHERE l.nome_livro ILIKE %s"
-                valor = f"%{id_ou_nome}%"
+                valores = (f"%{texto}%",)
 
             cur.execute(
                 "SELECT l.id_livro, l.nome_livro, l.ano_publicacao, l.copias, "
@@ -47,7 +48,7 @@ class ServicoLivro:
                 f"{filtro} "
                 "GROUP BY l.id_livro "
                 "ORDER BY l.nome_livro",
-                (valor,),
+                valores,
             )
             linhas = cur.fetchall()
             return [(Livro(*linha[:4]), linha[4]) for linha in linhas]
