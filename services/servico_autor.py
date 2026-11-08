@@ -10,10 +10,12 @@ class ServicoAutor:
         cur = self.conexao.cursor()
         try:
             cur.execute(
-                "INSERT INTO autor (nome_autor, pais) VALUES (%s, %s)",
+                "INSERT INTO autor (nome_autor, pais) VALUES (%s, %s) RETURNING id_autor",
                 (nome_autor, pais),
             )
+            id_autor = cur.fetchone()[0]
             self.conexao.commit()
+            return id_autor
         except Exception:
             self.conexao.rollback()
             raise
@@ -64,5 +66,14 @@ class ServicoAutor:
         except Exception:
             self.conexao.rollback()
             raise
+        finally:
+            cur.close()
+
+    def listar_autor(self):
+        cur = self.conexao.cursor()
+        try:
+            cur.execute("SELECT id_autor, nome_autor, pais FROM autor")
+            linhas = cur.fetchall()
+            return [Autor(*linha) for linha in linhas]
         finally:
             cur.close()
