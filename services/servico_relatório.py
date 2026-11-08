@@ -35,19 +35,19 @@ class ServicoRelatorio:
         finally:
             cur.close()
 
-        def relatorio_usuarios(self):
-            cur = self.conexao.cursor()
-            try:
-                cur.execute(
-                    "SELECT c.id_usuario, c.nome_usuario, "
-                    "COUNT(p.id_emprestimo) AS total_emprestimos, "
-                    "COUNT(p.id_emprestimo) FILTER (WHERE p.data_devol IS NULL) "
-                    "AS emprestimos_abertos "
-                    "FROM usuario c "
-                    "LEFT JOIN emprestimo p ON c.id_usuario = p.id_usuario "
-                    "GROUP BY c.id_usuario "
-                    "ORDER BY c.nome_usuario"
-                )
-                return cur.fetchall()
-            finally:
-                cur.close()
+    def relatorio_usuarios(self):
+        cur = self.conexao.cursor()
+        try:
+            cur.execute(
+                "SELECT c.id_usuario, c.nome_usuario, "
+                "COUNT(p.id_emprestimo) AS total_emprestimos, "
+                "COUNT(p.id_emprestimo) FILTER (WHERE p.data_devol IS NULL) "
+                "AS emprestimos_abertos "
+                "FROM usuario c "
+                "LEFT JOIN emprestimo p ON c.id_usuario = p.id_usuario "
+                "GROUP BY c.id_usuario "
+                "ORDER BY c.nome_usuario"
+            )
+            return cur.fetchall()
+        finally:
+            cur.close()
