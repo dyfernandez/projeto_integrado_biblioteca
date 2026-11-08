@@ -17,7 +17,7 @@ class ServicoLivro:
             )
             id_livro = cur.fetchone()[0]
 
-            for id_autor in ids_autores:
+            for id_autor in set(ids_autores):
                 cur.execute(
                     "INSERT INTO livro_autor (id_livro, id_autor) VALUES (%s, %s)",
                     (id_livro, id_autor),
@@ -114,7 +114,7 @@ class ServicoLivro:
 
             if ids_autores is not None:
                 cur.execute("DELETE FROM livro_autor WHERE id_livro = %s", (id_livro,))
-                for id_autor in ids_autores:
+                for id_autor in set(ids_autores):
                     cur.execute(
                         "INSERT INTO livro_autor (id_livro, id_autor) VALUES (%s, %s)",
                         (id_livro, id_autor),

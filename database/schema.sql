@@ -38,5 +38,6 @@ CREATE TABLE emprestimo (
 CREATE TABLE livro_autor (
     id_livro_autor INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     id_livro       INT NOT NULL REFERENCES livro(id_livro),
-    id_autor       INT NOT NULL REFERENCES autor(id_autor)
+    id_autor       INT NOT NULL REFERENCES autor(id_autor),
+    UNIQUE (id_livro, id_autor)
 );
