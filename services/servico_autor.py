@@ -32,13 +32,12 @@ class ServicoAutor:
                 )
             else:
                 cur.execute(
-                    "SELECT id_autor, nome_autor, pais FROM autor WHERE nome_autor = %s",
+                    "SELECT id_autor, nome_autor, pais FROM autor WHERE nome_autor = %s "
+                    "ORDER BY id_autor",
                     (id_ou_nome,),
                 )
-            linha = cur.fetchone()
-            if linha is None:
-                return None
-            return Autor(*linha)
+            linhas = cur.fetchall()
+            return [Autor(*linha) for linha in linhas]
         finally:
             cur.close()
 

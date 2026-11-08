@@ -32,13 +32,12 @@ class ServicoUsuario:
             else:
                 cur.execute(
                     "SELECT id_usuario, nome_usuario, telefone, email, rua, numero, bairro "
-                    "FROM usuario WHERE nome_usuario = %s AND status_usuario = TRUE",
+                    "FROM usuario WHERE nome_usuario = %s AND status_usuario = TRUE "
+                    "ORDER BY id_usuario",
                     (id_ou_nome,),
                 )
-            linha = cur.fetchone()
-            if linha is None:
-                return None
-            return Usuario(*linha)
+            linhas = cur.fetchall()
+            return [Usuario(*linha) for linha in linhas]
         finally:
             cur.close()
 
