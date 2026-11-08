@@ -62,3 +62,36 @@ class ServicoEmprestimo:
             raise e
         finally:
             cur.close()
+
+    def listar_emprestimos_abertos(self):
+        cur = self.conexao.cursor()
+        try:
+            cur.execute(
+                "SELECT e.id_emprestimo, u.nome_usuario, l.nome_livro, "
+                "e.data_retirada, e.data_prev_devol "
+                "FROM emprestimo e "
+                "JOIN usuario u ON u.id_usuario = e.id_usuario "
+                "JOIN livro l ON l.id_livro = e.id_livro "
+                "WHERE e.data_devol IS NULL "
+                "ORDER BY e.data_prev_devol"
+            )
+            return cur.fetchall()
+        finally:
+            cur.close()
+
+    def listar_emprestimos_abertos_usuario(self, id_usuario):
+        cur = self.conexao.cursor()
+        try:
+            cur.execute(
+                "SELECT e.id_emprestimo, u.nome_usuario, l.nome_livro, "
+                "e.data_retirada, e.data_prev_devol "
+                "FROM emprestimo e "
+                "JOIN usuario u ON u.id_usuario = e.id_usuario "
+                "JOIN livro l ON l.id_livro = e.id_livro "
+                "WHERE e.id_usuario = %s AND e.data_devol IS NULL "
+                "ORDER BY e.data_prev_devol",
+                (id_usuario,),
+            )
+            return cur.fetchall()
+        finally:
+            cur.close()
