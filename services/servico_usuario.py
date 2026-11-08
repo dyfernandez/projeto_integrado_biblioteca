@@ -91,6 +91,8 @@ class ServicoUsuario:
                 "WHERE id_usuario = %s AND status_usuario = TRUE",
                 valores,
             )
+            if cur.rowcount == 0:
+                raise ValueError("Usuário não encontrado ou desativado.")
             self.conexao.commit()
         except Exception:
             self.conexao.rollback()
@@ -114,6 +116,8 @@ class ServicoUsuario:
                 "WHERE id_usuario = %s AND status_usuario = TRUE",
                 (id_usuario,),
             )
+            if cur.rowcount == 0:
+                raise ValueError("Usuário não encontrado ou já desativado.")
             self.conexao.commit()
         except Exception:
             self.conexao.rollback()
