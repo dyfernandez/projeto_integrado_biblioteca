@@ -122,14 +122,14 @@ class ServicoUsuario:
         finally:
             cur.close()
 
-        def listar_usuario(self):
-            cur = self.conexao.cursor()
-            try:
-                cur.execute(
-                    "SELECT id_usuario, nome_usuario, telefone, email, rua, numero, bairro "
-                    "FROM usuario WHERE status_usuario = TRUE"
-                )
-                linhas = cur.fetchall()
-                return [Usuario(*linha) for linha in linhas]
-            finally:
-                cur.close()
+    def listar_usuario(self):
+        cur = self.conexao.cursor()
+        try:
+            cur.execute(
+                "SELECT id_usuario, nome_usuario, telefone, email, rua, numero, bairro "
+                "FROM usuario WHERE status_usuario = TRUE"
+            )
+            linhas = cur.fetchall()
+            return [Usuario(*linha) for linha in linhas]
+        finally:
+            cur.close()
