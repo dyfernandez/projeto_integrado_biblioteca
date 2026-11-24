@@ -2,10 +2,17 @@ from models.usuario import Usuario
 
 
 class ServicoUsuario:
+    """Regras e acesso ao banco para usuários.
+    
+    Usuário nunca é apagado de verdade: é desativado (status_usuario = FALSE)
+    para não perder o histórico de empréstimos.
+    """
     def __init__(self, conexao):
+        """Guarda a conexão que vem do main.py."""
         self.conexao = conexao
 
     def criar_usuario(self, nome, telefone, email, rua, numero, bairro):
+        """Cadastra um usuário novo (já nasce ativo)."""
         cur = self.conexao.cursor()
         try:
             cur.execute(
@@ -21,8 +28,10 @@ class ServicoUsuario:
             cur.close()
 
     def buscar_usuario(self, id_ou_nome):
+        """Busca usuário ativo por id (só números) ou por nome exato. Devolve uma lista."""
         cur = self.conexao.cursor()
         try:
+            # Se digitou só números, procura pelo id; senão, pelo nome
             if str(id_ou_nome).isdigit():
                 cur.execute(
                     "SELECT id_usuario, nome_usuario, telefone, email, rua, numero, bairro "
@@ -51,6 +60,8 @@ class ServicoUsuario:
         numero=None,
         bairro=None,
     ):
+        """Altera só os campos informados (os None ficam como estão)."""
+        # Monta a lista de campos do UPDATE só com o que veio preenchido
         campos = []
         valores = []
 
@@ -78,6 +89,7 @@ class ServicoUsuario:
             campos.append("bairro = %s")
             valores.append(bairro)
 
+        # Nada para alterar, então nem chama o banco
         if not campos:
             return
 
@@ -90,6 +102,7 @@ class ServicoUsuario:
                 "WHERE id_usuario = %s AND status_usuario = TRUE",
                 valores,
             )
+            # rowcount 0 = não achou usuário ativo com esse id
             if cur.rowcount == 0:
                 raise ValueError("Usuário não encontrado ou desativado.")
             self.conexao.commit()
@@ -100,6 +113,9 @@ class ServicoUsuario:
             cur.close()
 
     def deletar_usuario(self, id_usuario):
+        """Desativa o usuário (não apaga a linha).
+        Bloqueia se ele ainda tem livro para devolver.
+        """
         cur = self.conexao.cursor()
         try:
             cur.execute(
@@ -107,6 +123,7 @@ class ServicoUsuario:
                 "WHERE id_usuario = %s AND data_devol IS NULL",
                 (id_usuario,),
             )
+            # Se achou algum empréstimo sem data de devolução, não deixa desativar
             if cur.fetchone() is not None:
                 raise ValueError("O usuário tem um livro pendente de devolução.")
 
@@ -125,6 +142,7 @@ class ServicoUsuario:
             cur.close()
 
     def listar_usuario(self):
+        """Devolve todos os usuários ativos."""
         cur = self.conexao.cursor()
         try:
             cur.execute(

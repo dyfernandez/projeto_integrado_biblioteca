@@ -1,4 +1,5 @@
 class Emprestimo:
+    """Um empréstimo. 'data_devol' fica None até o livro ser devolvido."""
     def __init__(self, id_emprestimo, usuario, livro, data_retirada, data_prev_devol, data_devol=None):
         self.id_emprestimo = id_emprestimo
         self.usuario = usuario

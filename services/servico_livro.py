@@ -2,12 +2,22 @@ from models.livro import Livro
 
 
 class ServicoLivro:
+    """Regras e acesso ao banco para livros.
+    
+    Nas consultas, string_agg junta os nomes dos autores numa linha só
+    (um livro pode ter vários autores). As buscas devolvem pares (Livro, autores).
+    """
     def __init__(self, conexao):
+        """Guarda a conexão que vem do main.py."""
         self.conexao = conexao
 
     def criar_livro(self, nome_livro, ano_publicacao, copias, ids_autores):
+        """Cadastra o livro e liga ele aos autores. Devolve o id do livro.
+        Tudo no mesmo commit: se algo falhar, nem o livro fica salvo.
+        """
         cur = self.conexao.cursor()
         try:
+            # Regra: livro sem autor não pode ser cadastrado
             if not ids_autores:
                 raise ValueError("O livro precisa ter pelo menos um autor.")
 
@@ -17,6 +27,7 @@ class ServicoLivro:
             )
             id_livro = cur.fetchone()[0]
 
+            # set() tira ids repetidos, senão ligaria o mesmo autor duas vezes
             for id_autor in set(ids_autores):
                 cur.execute(
                     "INSERT INTO livro_autor (id_livro, id_autor) VALUES (%s, %s)",
@@ -32,9 +43,11 @@ class ServicoLivro:
             cur.close()
 
     def buscar_livro(self, id_ou_nome):
+        """Busca simples: por id ou por parte do título."""
         cur = self.conexao.cursor()
         try:
             texto = str(id_ou_nome)
+            # Se digitou só números, procura pelo id e também por títulos com esse número
             if texto.isdigit():
                 filtro = "WHERE l.id_livro = %s OR l.nome_livro ILIKE %s"
                 valores = (int(texto), f"%{texto}%")
@@ -59,6 +72,9 @@ class ServicoLivro:
             cur.close()
 
     def buscar_livros(self, titulo=None, autor=None, ano=None):
+        """Busca com filtros opcionais (título, autor e ano). Só filtra pelo que for informado.
+        """
+        # Vai montando o WHERE só com os filtros preenchidos
         condicoes = []
         valores = []
 
@@ -101,6 +117,7 @@ class ServicoLivro:
             cur.close()
 
     def listar_livros(self):
+        """Devolve todos os livros com seus autores."""
         cur = self.conexao.cursor()
         try:
             cur.execute(
@@ -125,6 +142,8 @@ class ServicoLivro:
         copias=None,
         ids_autores=None,
     ):
+        """Altera só o que foi informado (None = manter). Se vier ids_autores, a lista de autores é trocada."""
+        # Monta o UPDATE só com os campos preenchidos
         campos = []
         valores = []
 
@@ -154,6 +173,7 @@ class ServicoLivro:
                 valores.append(id_livro)
                 cur.execute(query, tuple(valores))
 
+            # Troca de autores: apaga os vínculos antigos e cria os novos
             if ids_autores is not None:
                 cur.execute("DELETE FROM livro_autor WHERE id_livro = %s", (id_livro,))
                 for id_autor in set(ids_autores):

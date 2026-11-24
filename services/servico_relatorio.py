@@ -1,8 +1,11 @@
 class ServicoRelatorio:
+    """Consultas de relatório. Só lê do banco, não altera nada."""
     def __init__(self, conexao):
+        """Guarda a conexão que vem do main.py."""
         self.conexao = conexao
 
     def relatorio_livros_disponiveis(self):
+        """Livros com pelo menos 1 cópia no estoque."""
         cur = self.conexao.cursor()
         try:
             cur.execute(
@@ -20,6 +23,7 @@ class ServicoRelatorio:
             cur.close()
 
     def relatorio_livros_emprestados(self):
+        """Empréstimos em aberto, com o nome do leitor e o prazo de devolução."""
         cur = self.conexao.cursor()
         try:
             cur.execute(
@@ -36,6 +40,9 @@ class ServicoRelatorio:
             cur.close()
 
     def relatorio_usuarios(self):
+        """Cada usuário com o total de empréstimos e quantos estão em aberto.
+        LEFT JOIN faz aparecer também quem nunca pegou livro (total 0).
+        """
         cur = self.conexao.cursor()
         try:
             cur.execute(

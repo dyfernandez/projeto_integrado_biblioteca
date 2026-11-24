@@ -12,6 +12,7 @@ from services.servico_usuario import ServicoUsuario
 
 
 def ler_texto(rotulo):
+    """Pergunta até a pessoa digitar algo (não aceita vazio)."""
     while True:
         valor = input(rotulo).strip()
         if valor:
@@ -20,10 +21,12 @@ def ler_texto(rotulo):
 
 
 def ler_opcional(rotulo):
+    """Lê um texto que pode ficar em branco; em branco vira None."""
     return input(rotulo).strip() or None
 
 
 def ler_inteiro(rotulo, minimo=None, opcional=False):
+    """Pergunta até digitar um número inteiro válido (e respeitar o mínimo, se tiver)."""
     while True:
         valor = input(rotulo).strip()
         if not valor and opcional:
@@ -40,6 +43,7 @@ def ler_inteiro(rotulo, minimo=None, opcional=False):
 
 
 def ler_ids(rotulo, opcional=False):
+    """Lê ids separados por vírgula (ex.: 1, 2) e devolve uma lista de inteiros."""
     while True:
         valor = input(rotulo).strip()
         if not valor and opcional:
@@ -53,6 +57,7 @@ def ler_ids(rotulo, opcional=False):
 
 
 def confirmar(rotulo):
+    """Pergunta sim ou não. Só 's' ou 'sim' confirmam."""
     return input(f"{rotulo} (s/N): ").strip().lower() in ("s", "sim")
 
 
@@ -60,6 +65,7 @@ def confirmar(rotulo):
 
 
 def mostrar_lista(itens, formatar):
+    """Imprime cada item usando a função de formatação, ou avisa se a lista estiver vazia."""
     if not itens:
         print("Nenhum registro encontrado.")
         return
@@ -68,14 +74,17 @@ def mostrar_lista(itens, formatar):
 
 
 def formatar_data(data):
+    """Data no formato brasileiro (dd/mm/aaaa)."""
     return data.strftime("%d/%m/%Y")
 
 
 def formatar_autor(autor):
+    """Texto de uma linha para um autor."""
     return f"[{autor.id_autor}] {autor.nome_autor} ({autor.pais})"
 
 
 def formatar_livro(par):
+    """Texto de uma linha para (Livro, autores)."""
     livro, autores = par
     return (
         f"[{livro.id_livro}] {livro.nome_livro} ({livro.ano_publicacao}) | "
@@ -84,6 +93,7 @@ def formatar_livro(par):
 
 
 def formatar_usuario(usuario):
+    """Texto de uma linha para um usuário."""
     return (
         f"[{usuario.id_usuario}] {usuario.nome_usuario} | {usuario.telefone} | "
         f"{usuario.email} | {usuario.rua}, {usuario.numero} - {usuario.bairro}"
@@ -91,6 +101,7 @@ def formatar_usuario(usuario):
 
 
 def formatar_emprestimo(linha):
+    """Texto de uma linha para um empréstimo (linha vinda do banco)."""
     id_emprestimo, usuario, livro, retirada, previsao = linha
     return (
         f"[{id_emprestimo}] {livro} | Usuário: {usuario} | "
@@ -99,11 +110,13 @@ def formatar_emprestimo(linha):
 
 
 def formatar_livro_disponivel(linha):
+    """Texto de uma linha para o relatório de livros disponíveis."""
     id_livro, nome, ano, copias, autores = linha
     return f"[{id_livro}] {nome} ({ano}) | Autores: {autores or '-'} | Cópias: {copias}"
 
 
 def formatar_relatorio_usuario(linha):
+    """Texto de uma linha para o relatório de usuários."""
     id_usuario, nome, total, abertos = linha
     return f"[{id_usuario}] {nome} | Empréstimos: {total} | Em aberto: {abertos}"
 
@@ -112,20 +125,24 @@ def formatar_relatorio_usuario(linha):
 
 
 def cadastrar_autor(autores):
+    """Tela: cadastrar autor."""
     nome = ler_texto("Nome: ")
     pais = ler_texto("País: ")
     print(f"Autor cadastrado com id {autores.criar_autor(nome, pais)}.")
 
 
 def buscar_autor(autores):
+    """Tela: buscar autor por id ou nome."""
     mostrar_lista(autores.buscar_autor(ler_texto("Id ou nome exato: ")), formatar_autor)
 
 
 def listar_autores(autores):
+    """Tela: listar autores."""
     mostrar_lista(autores.listar_autor(), formatar_autor)
 
 
 def atualizar_autor(autores):
+    """Tela: atualizar autor (campo em branco = manter)."""
     id_autor = ler_inteiro("Id do autor: ")
     print("Deixe em branco para manter o valor atual.")
     dados = {
@@ -143,6 +160,7 @@ def atualizar_autor(autores):
 
 
 def cadastrar_livro(livros, autores):
+    """Tela: cadastrar livro. Mostra os autores para escolher os ids; exige ao menos um autor cadastrado."""
     lista_autores = autores.listar_autor()
     if not lista_autores:
         print("Cadastre um autor antes de cadastrar um livro.")
@@ -158,10 +176,12 @@ def cadastrar_livro(livros, autores):
 
 
 def buscar_livro(livros):
+    """Tela: busca simples por id ou título."""
     mostrar_lista(livros.buscar_livro(ler_texto("Id ou parte do título: ")), formatar_livro)
 
 
 def buscar_livros_com_filtros(livros):
+    """Tela: busca por título, autor e/ou ano (RF06)."""
     print("Deixe em branco os filtros que não quiser usar.")
     titulo = ler_opcional("Título: ")
     autor = ler_opcional("Autor: ")
@@ -170,10 +190,12 @@ def buscar_livros_com_filtros(livros):
 
 
 def listar_livros(livros):
+    """Tela: listar livros."""
     mostrar_lista(livros.listar_livros(), formatar_livro)
 
 
 def atualizar_livro(livros):
+    """Tela: atualizar livro (campo em branco = manter)."""
     id_livro = ler_inteiro("Id do livro: ")
     print("Deixe em branco para manter o valor atual.")
     dados = {
@@ -193,6 +215,7 @@ def atualizar_livro(livros):
 
 
 def cadastrar_usuario(usuarios):
+    """Tela: cadastrar usuário."""
     usuarios.criar_usuario(
         ler_texto("Nome: "),
         ler_texto("Telefone: "),
@@ -205,14 +228,17 @@ def cadastrar_usuario(usuarios):
 
 
 def buscar_usuario(usuarios):
+    """Tela: buscar usuário por id ou nome."""
     mostrar_lista(usuarios.buscar_usuario(ler_texto("Id ou nome exato: ")), formatar_usuario)
 
 
 def listar_usuarios(usuarios):
+    """Tela: listar usuários."""
     mostrar_lista(usuarios.listar_usuario(), formatar_usuario)
 
 
 def atualizar_usuario(usuarios):
+    """Tela: atualizar usuário (campo em branco = manter)."""
     id_usuario = ler_inteiro("Id do usuário: ")
     print("Deixe em branco para manter o valor atual.")
     dados = {
@@ -231,6 +257,7 @@ def atualizar_usuario(usuarios):
 
 
 def desativar_usuario(usuarios):
+    """Tela: desativar usuário, pedindo confirmação antes."""
     id_usuario = ler_inteiro("Id do usuário: ")
     if not confirmar("Confirma a desativação?"):
         print("Operação cancelada.")
@@ -243,6 +270,7 @@ def desativar_usuario(usuarios):
 
 
 def registrar_emprestimo(emprestimos):
+    """Tela: registrar empréstimo."""
     id_usuario = ler_inteiro("Id do usuário: ")
     id_livro = ler_inteiro("Id do livro: ")
     emprestimos.registrar_emprestimo(id_usuario, id_livro)
@@ -250,15 +278,18 @@ def registrar_emprestimo(emprestimos):
 
 
 def devolver_livro(emprestimos):
+    """Tela: registrar devolução."""
     emprestimos.devolver_livro(ler_inteiro("Id do empréstimo: "))
     print("Devolução registrada.")
 
 
 def listar_emprestimos_abertos(emprestimos):
+    """Tela: listar todos os empréstimos em aberto."""
     mostrar_lista(emprestimos.listar_emprestimos_abertos(), formatar_emprestimo)
 
 
 def listar_emprestimos_do_usuario(emprestimos):
+    """Tela: listar empréstimos em aberto de um usuário."""
     id_usuario = ler_inteiro("Id do usuário: ")
     mostrar_lista(emprestimos.listar_emprestimos_abertos_usuario(id_usuario), formatar_emprestimo)
 
@@ -267,11 +298,17 @@ def listar_emprestimos_do_usuario(emprestimos):
 
 
 def executar(conexao, acao):
+    """Roda uma ação do menu e trata os erros, para o programa não cair.
+    ValueError = regra do sistema (ex.: sem cópias). psycopg2.Error = erro do banco.
+    """
     try:
         acao()
+    # Erro de regra do sistema: só mostra a mensagem
     except ValueError as erro:
         print(f"Erro: {erro}")
+    # Erro do banco
     except psycopg2.Error as erro:
+        # Se a conexão caiu, não dá para continuar: deixa o main.py tratar
         if conexao.closed:
             raise
         # Leituras não fazem rollback, e sem ele a conexão ficaria inutilizável.
@@ -283,6 +320,9 @@ def executar(conexao, acao):
 
 
 def rodar_menu(conexao, titulo, opcoes, rotulo_saida="Voltar"):
+    """Mostra um menu numerado e repete até escolher 0.
+    'opcoes' é uma lista de (texto, função); a função da opção escolhida é executada.
+    """
     while True:
         print(f"\n=== {titulo} ===")
         for numero, (rotulo, _) in enumerate(opcoes, start=1):
@@ -300,6 +340,7 @@ def rodar_menu(conexao, titulo, opcoes, rotulo_saida="Voltar"):
 
 
 def menu_principal(conexao):
+    """Cria os serviços, monta os submenus e abre o menu principal."""
     autores = ServicoAutor(conexao)
     livros = ServicoLivro(conexao)
     usuarios = ServicoUsuario(conexao)
