@@ -1,3 +1,11 @@
+from exceptions.erros import (
+    EmprestimoNaoEncontrado,
+    LivroIndisponivel,
+    LivroNaoEncontrado,
+    UsuarioNaoEncontrado,
+)
+
+
 class ServicoEmprestimo:
     """Empréstimos e devoluções.
     
@@ -19,14 +27,14 @@ class ServicoEmprestimo:
                 (id_usuario,),
             )
             if cur.fetchone() is None:
-                raise ValueError("Usuário não encontrado ou desativado.")
+                raise UsuarioNaoEncontrado("Usuário não encontrado ou desativado.")
             # 2) O livro precisa existir e ter pelo menos 1 cópia disponível
-            cur.execute(
-                "SELECT 1 FROM livro WHERE id_livro = %s AND copias >= 1",
-                (id_livro,),
-            )
-            if cur.fetchone() is None:
-                raise ValueError("Livro não encontrado ou sem cópias disponíveis.")
+            cur.execute("SELECT copias FROM livro WHERE id_livro = %s", (id_livro,))
+            livro = cur.fetchone()
+            if livro is None:
+                raise LivroNaoEncontrado("Livro não encontrado.")
+            if livro[0] < 1:
+                raise LivroIndisponivel("Livro sem cópias disponíveis.")
 
             # 3) Registra o empréstimo: retirada hoje, devolução prevista daqui a 7 dias
             cur.execute(
@@ -61,7 +69,7 @@ class ServicoEmprestimo:
             )
             linha = cur.fetchone()
             if linha is None:
-                raise ValueError("Emprestimo não encontrado ou já devolvido..")
+                raise EmprestimoNaoEncontrado("Empréstimo não encontrado ou já devolvido.")
             id_livro = linha[0]
 
             # Devolve a cópia ao estoque

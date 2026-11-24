@@ -1,3 +1,4 @@
+from exceptions.erros import UsuarioComPendencia, UsuarioNaoEncontrado
 from models.usuario import Usuario
 
 
@@ -104,7 +105,7 @@ class ServicoUsuario:
             )
             # rowcount 0 = não achou usuário ativo com esse id
             if cur.rowcount == 0:
-                raise ValueError("Usuário não encontrado ou desativado.")
+                raise UsuarioNaoEncontrado("Usuário não encontrado ou desativado.")
             self.conexao.commit()
         except Exception:
             self.conexao.rollback()
@@ -125,7 +126,7 @@ class ServicoUsuario:
             )
             # Se achou algum empréstimo sem data de devolução, não deixa desativar
             if cur.fetchone() is not None:
-                raise ValueError("O usuário tem um livro pendente de devolução.")
+                raise UsuarioComPendencia("O usuário tem um livro pendente de devolução.")
 
             cur.execute(
                 "UPDATE usuario SET status_usuario = FALSE "
@@ -133,7 +134,7 @@ class ServicoUsuario:
                 (id_usuario,),
             )
             if cur.rowcount == 0:
-                raise ValueError("Usuário não encontrado ou já desativado.")
+                raise UsuarioNaoEncontrado("Usuário não encontrado ou já desativado.")
             self.conexao.commit()
         except Exception:
             self.conexao.rollback()

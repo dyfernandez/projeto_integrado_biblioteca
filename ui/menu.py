@@ -1,6 +1,7 @@
 import psycopg2
 from psycopg2 import errors
 
+from exceptions.erros import ErroBiblioteca
 from services.servico_autor import ServicoAutor
 from services.servico_emprestimo import ServicoEmprestimo
 from services.servico_livro import ServicoLivro
@@ -299,12 +300,12 @@ def listar_emprestimos_do_usuario(emprestimos):
 
 def executar(conexao, acao):
     """Roda uma ação do menu e trata os erros, para o programa não cair.
-    ValueError = regra do sistema (ex.: sem cópias). psycopg2.Error = erro do banco.
+    ErroBiblioteca = regra do sistema (ex.: livro sem cópias). psycopg2.Error = erro do banco.
     """
     try:
         acao()
     # Erro de regra do sistema: só mostra a mensagem
-    except ValueError as erro:
+    except ErroBiblioteca as erro:
         print(f"Erro: {erro}")
     # Erro do banco
     except psycopg2.Error as erro:

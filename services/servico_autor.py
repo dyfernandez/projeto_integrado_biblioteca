@@ -1,3 +1,4 @@
+from exceptions.erros import AutorNaoEncontrado
 from models.autor import Autor
 
 
@@ -73,7 +74,7 @@ class ServicoAutor:
             cur.execute(sql, tuple(valores))
             # rowcount 0 = nenhum autor com esse id
             if cur.rowcount == 0:
-                raise ValueError("Autor não encontrado.")
+                raise AutorNaoEncontrado("Autor não encontrado.")
             self.conexao.commit()
         except Exception:
             self.conexao.rollback()

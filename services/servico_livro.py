@@ -1,3 +1,4 @@
+from exceptions.erros import LivroNaoEncontrado, LivroSemAutor
 from models.livro import Livro
 
 
@@ -19,7 +20,7 @@ class ServicoLivro:
         try:
             # Regra: livro sem autor não pode ser cadastrado
             if not ids_autores:
-                raise ValueError("O livro precisa ter pelo menos um autor.")
+                raise LivroSemAutor("O livro precisa ter pelo menos um autor.")
 
             cur.execute(
                 "INSERT INTO livro (nome_livro, ano_publicacao, copias) VALUES (%s, %s, %s) RETURNING id_livro",
@@ -162,11 +163,11 @@ class ServicoLivro:
         cur = self.conexao.cursor()
         try:
             if ids_autores is not None and not ids_autores:
-                raise ValueError("O livro precisa ter pelo menos um autor.")
+                raise LivroSemAutor("O livro precisa ter pelo menos um autor.")
 
             cur.execute("SELECT 1 FROM livro WHERE id_livro = %s", (id_livro,))
             if cur.fetchone() is None:
-                raise ValueError("Livro não encontrado.")
+                raise LivroNaoEncontrado("Livro não encontrado.")
 
             if campos:
                 query = f"UPDATE livro SET {', '.join(campos)} WHERE id_livro = %s"
